@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title> By Z3em - تشفير وفك التشفير</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background-color: #640707;
+      color: #0bf593;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #111;
+      text-align: center;
+      padding: 1em;
+      font-size: 1.6em;
+      font-weight: bold;
+      border-bottom: 3px solid #02666d;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #111;
+      border-bottom: 2px solid #ebeae5;
+    }
+    nav button {
+      padding: 1em 2em;
+      background: none;
+      border: none;
+      color: #050652;
+      font-size: 1.2em;
+      cursor: pointer;
+    }
+    nav button.active {
+      background-color: #FFD700;
+      color: #000;
+      font-weight: bold;
+    }
+    .page {
+      display: none;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    .page.active {
+      display: block;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      background: #111;
+      color: #ffd90002;
+      border: 1px solid #192a58;
+      border-radius: 6px;
+      padding: 15px;
+      font-size: 1rem;
+      resize: vertical;
+    }
+    button.action {
+      margin-top: 10px;
+      background: #141414;
+      color: #d30808;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<header>By Z3em - تشفير وفك التشفير</header>
+
+<nav>
+  <button onclick="switchTab('encrypt')" id="tab-encrypt" class="active">تشفير</button>
+  <button onclick="switchTab('decrypt')" id="tab-decrypt">فك التشفير</button>
+</nav>
+
+<div class="page active" id="encrypt">
+  <textarea id="inputEncrypt" placeholder="أدخل كود HTML أو Node.js أو Python فقط..."></textarea>
+  <button class="action" onclick="encrypt()">تشفير ونسخ</button>
+</div>
+
+<div class="page" id="decrypt">
+  <textarea id="inputDecrypt" placeholder="أدخل النص المشفر هنا..."></textarea>
+  <button class="action" onclick="decrypt()">فك التشفير ونسخ</button>
+</div>
+
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.getElementById(tab).classList.add("active");
+    document.getElementById("tab-" + tab).classList.add("active");
+  }
+
+  function complexEncrypt(text) {
+    return btoa(encodeURIComponent(text).split('').reverse().join(''));
+  }
+
+  function complexDecrypt(text) {
+    try {
+      return decodeURIComponent(atob(text)).split('').reverse().join('');
+    } catch {
+      return '';
+    }
+  }
+
+  function isValidCode(code) {
+    const lower = code.toLowerCase();
+    if (lower.includes("<html") || lower.includes("</html>")) return true;
+    if (lower.includes("require(") || lower.includes("module.exports")) return true;
+    if (lower.includes("import") || lower.includes("def ") || lower.includes("print(")) return true;
+    return false;
+  }
+
+  function isNumbersOnly(str) {
+    return /^\d+$/.test(str.trim());
+  }
+
+  function encrypt() {
+    const input = document.getElementById("inputEncrypt").value.trim();
+    if (!input) return alert("أدخل نصًا للتشفير");
+
+    let output;
+    if (isNumbersOnly(input)) {
+      output = input.split('').reverse().join('');
+    } else if (isValidCode(input)) {
+      output = complexEncrypt(input);
+    } else {
+      return alert("نقبل فقط HTML أو Node.js أو Python");
+    }
+
+    copyToClipboard(output);
+    alert("تم التشفير ونسخ الناتج!");
+  }
+
+  function decrypt() {
+    const input = document.getElementById("inputDecrypt").value.trim();
+    if (!input) return alert("أدخل نصًا لفك التشفير");
+
+    let output;
+    if (isNumbersOnly(input)) {
+      output = input.split('').reverse().join('');
+    } else {
+      output = complexDecrypt(input);
+    }
+
+    if (!output) return alert("فشل في فك التشفير!");
+
+    copyToClipboard(output);
+    alert("تم فك التشفير ونسخ الناتج!");
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    } else {
+      const area = document.createElement("textarea");
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      document.body.removeChild(area);
+    }
+  }
+</script>
+
+</body>
+</html>
